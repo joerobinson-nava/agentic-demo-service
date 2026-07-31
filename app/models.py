@@ -27,3 +27,10 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+
+
+class PaginatedTasks(BaseModel):
+    """Response model for paginated task list."""
+
+    tasks: list[Task]
+    total: int

@@ -5,7 +5,7 @@ The API layer does not yet handle it, so a duplicate id currently surfaces as an
 HTTP 500. Ticket AGENTDEV-2 is to return 409 instead.
 """
 
-from app.models import Task, TaskCreate
+from app.models import PaginatedTasks, Task, TaskCreate
 
 
 class DuplicateTaskError(Exception):
@@ -25,6 +25,14 @@ class TaskStore:
     def list(self) -> list[Task]:
         """Return all tasks in insertion order."""
         return list(self._tasks.values())
+
+    def list_paginated(self, limit: int = 20, offset: int = 0) -> PaginatedTasks:
+        """Return a paginated list of tasks with total count."""
+        if limit < 0 or offset < 0:
+            raise ValueError("limit and offset must be non-negative")
+        all_tasks = list(self._tasks.values())
+        paginated_tasks = all_tasks[offset : offset + limit]
+        return PaginatedTasks(tasks=paginated_tasks, total=len(all_tasks))
 
     def add(self, data: TaskCreate) -> Task:
         """Add a new task, raising DuplicateTaskError on a repeated id."""

@@ -33,7 +33,7 @@ def test_health(client):
 def test_list_tasks_empty(client):
     resp = client.get("/tasks")
     assert resp.status_code == 200
-    assert resp.json() == []
+    assert resp.json() == {"tasks": [], "total": 0}
 
 
 def test_create_and_list_task(client):
@@ -44,7 +44,7 @@ def test_create_and_list_task(client):
 
     resp = client.get("/tasks")
     assert resp.status_code == 200
-    assert resp.json() == [payload]
+    assert resp.json() == {"tasks": [payload], "total": 1}
 
 
 def test_create_task_defaults_status_to_todo(client):
@@ -63,3 +63,24 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_pagination(client):
+    for i in range(100):
+        client.post('/tasks', json={'id': i, 'title': f'Task {i}', 'status': 'todo'})
+
+    resp = client.get('/tasks?limit=5&offset=10')
+    assert resp.status_code == 200
+    assert len(resp.json()['tasks']) == 5
+    assert resp.json()['total'] == 100
+
+    resp = client.get('/tasks?limit=-1')
+    assert resp.status_code == 422
+
+    resp = client.get('/tasks?offset=-1')
+    assert resp.status_code == 422
+
+    resp = client.get('/tasks')
+    assert resp.status_code == 200
+    assert len(resp.json()['tasks']) == 20
+    assert resp.json()['total'] == 100

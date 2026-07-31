@@ -8,7 +8,7 @@ Demo seams for the agentic platform:
 
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
+from app.models import PaginatedTasks, Task, TaskCreate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -20,10 +20,14 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    """Return all tasks."""
-    return store.list()
+@app.get("/tasks", response_model=PaginatedTasks)
+def list_tasks(limit: int = 20, offset: int = 0) -> PaginatedTasks:
+    """Return a paginated list of tasks."""
+    if limit < 0 or offset < 0:
+        raise HTTPException(
+            status_code=422, detail="limit and offset must be non-negative"
+        )
+    return store.list_paginated(limit, offset)
 
 
 @app.post("/tasks", response_model=Task, status_code=201)
