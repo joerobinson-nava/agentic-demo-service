@@ -60,6 +60,24 @@ def test_get_task(client):
     assert resp.json()["title"] == "Fetch me"
 
 
+def test_list_tasks_with_status_filter(client):
+    client.post("/tasks", json={"id": 1, "title": "Task 1", "status": "todo"})
+    client.post("/tasks", json={"id": 2, "title": "Task 2", "status": "done"})
+
+    resp = client.get("/tasks?status=done")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["status"] == "done"
+
+    resp = client.get("/tasks?status=todo")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["status"] == "todo"
+
+    resp = client.get("/tasks?status=invalid")
+    assert resp.status_code == 422
+
+
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
