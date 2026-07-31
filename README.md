@@ -44,3 +44,5 @@ covered by an existing test.
 - **AGENTDEV-2 — duplicate id should return 409, not 500.**
   `POST /tasks` raises `DuplicateTaskError` on a repeated id, which is not handled
   and currently surfaces as HTTP 500.
+
+Automated draft demo marker for execution exec-486afdf1.
