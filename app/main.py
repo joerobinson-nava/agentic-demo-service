@@ -8,7 +8,7 @@ Demo seams for the agentic platform:
 
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
+from app.models import Status, Task, TaskCreate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -21,9 +21,9 @@ def health() -> dict[str, str]:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
+def list_tasks(status: Status = None) -> list[Task]:
     """Return all tasks."""
-    return store.list()
+    return [task for task in store.list() if task.status == status or status is None]
 
 
 @app.post("/tasks", response_model=Task, status_code=201)

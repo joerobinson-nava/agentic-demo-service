@@ -63,3 +63,33 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_list_tasks_with_status_filter(client):
+    client.post("/tasks", json={"id": 1, "title": "Task 1", "status": "todo"})
+    client.post("/tasks", json={"id": 2, "title": "Task 2", "status": "done"})
+    client.post("/tasks", json={"id": 3, "title": "Task 3", "status": "in_progress"})
+    client.post("/tasks", json={"id": 4, "title": "Task 4", "status": "done"})
+    
+    resp = client.get("/tasks?status=done")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) == 2
+    assert all(task["status"] == "done" for task in tasks)
+    assert {task["id"] for task in tasks} == {2, 4}
+
+
+def test_list_tasks_without_filter_returns_all(client):
+    client.post("/tasks", json={"id": 1, "title": "Task 1", "status": "todo"})
+    client.post("/tasks", json={"id": 2, "title": "Task 2", "status": "done"})
+    
+    resp = client.get("/tasks")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) == 2
+
+
+def test_list_tasks_with_invalid_status_returns_422(client):
+    resp = client.get("/tasks?status=invalid")
+    assert resp.status_code == 422
+
