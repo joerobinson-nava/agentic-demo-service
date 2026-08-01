@@ -20,6 +20,12 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/healthz")
+def healthz() -> dict[str, str]:
+    """Readiness probe."""
+    return {"status": "ok"}
+
+
 @app.get("/tasks", response_model=list[Task])
 def list_tasks() -> list[Task]:
     """Return all tasks."""
