@@ -1,14 +1,13 @@
 """FastAPI application for the demo task service.
 
 Demo seams for the agentic platform:
-- `GET /tasks` has no `status` filter yet (target for AGENTDEV-1).
 - `POST /tasks` does not handle a duplicate id, so it returns 500 today
   (target for AGENTDEV-2).
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 
-from app.models import Task, TaskCreate
+from app.models import Status, Task, TaskCreate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -21,9 +20,12 @@ def health() -> dict[str, str]:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    """Return all tasks."""
-    return store.list()
+def list_tasks(status: Status | None = Query(None, description="Filter tasks by status")) -> list[Task]:
+    """Return all tasks, optionally filtered by status."""
+    tasks = store.list()
+    if status is not None:
+        tasks = [task for task in tasks if task.status == status]
+    return tasks
 
 
 @app.post("/tasks", response_model=Task, status_code=201)
