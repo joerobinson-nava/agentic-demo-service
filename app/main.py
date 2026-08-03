@@ -26,6 +26,12 @@ def list_tasks() -> list[Task]:
     return store.list()
 
 
+@app.get("/tasks/count")
+def count_tasks() -> dict[str, int]:
+    """Return the total number of tasks."""
+    return {"count": store.count()}
+
+
 @app.post("/tasks", response_model=Task, status_code=201)
 def create_task(data: TaskCreate) -> Task:
     """Create a task."""
@@ -39,10 +45,3 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
-
-
-@app.get("/tasks/count", response_model=int)
-def count_tasks() -> int:
-    """Return the number of tasks."""
-    return store.count()
-

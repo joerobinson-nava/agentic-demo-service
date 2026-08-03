@@ -39,7 +39,7 @@ class TaskStore:
         return self._tasks.get(task_id)
 
     def count(self) -> int:
-        """Return the number of tasks."""
+        """Return the total number of tasks."""
         return len(self._tasks)
 
 

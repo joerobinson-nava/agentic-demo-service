@@ -36,6 +36,12 @@ def test_list_tasks_empty(client):
     assert resp.json() == []
 
 
+def test_count_tasks_empty(client):
+    resp = client.get("/tasks/count")
+    assert resp.status_code == 200
+    assert resp.json() == {"count": 0}
+
+
 def test_create_and_list_task(client):
     payload = {"id": 1, "title": "Write demo", "status": "todo"}
     resp = client.post("/tasks", json=payload)
