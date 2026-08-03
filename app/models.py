@@ -21,6 +21,12 @@ class TaskCreate(BaseModel):
     status: Status = Status.todo
 
 
+class TaskUpdate(BaseModel):
+    """Payload accepted when updating a task."""
+
+    status: Status
+
+
 class Task(BaseModel):
     """A task stored by the service."""
 

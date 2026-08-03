@@ -8,7 +8,7 @@ Demo seams for the agentic platform:
 
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
+from app.models import Task, TaskCreate, TaskUpdate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -30,6 +30,15 @@ def list_tasks() -> list[Task]:
 def create_task(data: TaskCreate) -> Task:
     """Create a task."""
     return store.add(data)
+
+
+@app.patch("/tasks/{task_id}", response_model=Task)
+def update_task_status(task_id: int, data: TaskUpdate) -> Task:
+    """Update the status of a task by id."""
+    task = store.update(task_id, data.status)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
 
 
 @app.get("/tasks/{task_id}", response_model=Task)

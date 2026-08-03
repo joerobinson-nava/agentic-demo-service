@@ -60,6 +60,18 @@ def test_get_task(client):
     assert resp.json()["title"] == "Fetch me"
 
 
+def test_update_task_status(client):
+    client.post("/tasks", json={"id": 4, "title": "Update me", "status": "todo"})
+    resp = client.patch("/tasks/4", json={"status": "in_progress"})
+    assert resp.status_code == 200
+    assert resp.json() == {"id": 4, "title": "Update me", "status": "in_progress"}
+
+
+def test_update_missing_task_returns_404(client):
+    resp = client.patch("/tasks/999", json={"status": "done"})
+    assert resp.status_code == 404
+
+
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
