@@ -39,3 +39,10 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.get("/tasks/count", response_model=int)
+def count_tasks() -> int:
+    """Return the number of tasks."""
+    return store.count()
+

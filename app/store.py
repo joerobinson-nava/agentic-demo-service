@@ -38,5 +38,9 @@ class TaskStore:
         """Return the task with the given id, or None if absent."""
         return self._tasks.get(task_id)
 
+    def count(self) -> int:
+        """Return the number of tasks."""
+        return len(self._tasks)
+
 
 store = TaskStore()
