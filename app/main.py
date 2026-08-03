@@ -21,9 +21,10 @@ def health() -> dict[str, str]:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    """Return all tasks."""
-    return store.list()
+def list_tasks(limit: int = 10, offset: int = 0) -> list[Task]:
+    """Return all tasks with pagination support."""
+    tasks = store.list()
+    return tasks[offset:offset + limit]
 
 
 @app.post("/tasks", response_model=Task, status_code=201)

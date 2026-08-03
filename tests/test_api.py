@@ -63,3 +63,70 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_list_tasks_pagination_default(client):
+    # Create 15 tasks
+    for i in range(1, 16):
+        client.post("/tasks", json={"id": i, "title": f"Task {i}", "status": "todo"})
+    
+    # Default limit is 10
+    resp = client.get("/tasks")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) == 10
+    assert tasks[0]["id"] == 1
+    assert tasks[9]["id"] == 10
+
+
+def test_list_tasks_pagination_with_limit(client):
+    # Create 10 tasks
+    for i in range(1, 11):
+        client.post("/tasks", json={"id": i, "title": f"Task {i}", "status": "todo"})
+    
+    # Request 5 tasks
+    resp = client.get("/tasks?limit=5")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) == 5
+    assert tasks[0]["id"] == 1
+    assert tasks[4]["id"] == 5
+
+
+def test_list_tasks_pagination_with_offset(client):
+    # Create 10 tasks
+    for i in range(1, 11):
+        client.post("/tasks", json={"id": i, "title": f"Task {i}", "status": "todo"})
+    
+    # Skip first 5 tasks
+    resp = client.get("/tasks?offset=5")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) == 5
+    assert tasks[0]["id"] == 6
+    assert tasks[4]["id"] == 10
+
+
+def test_list_tasks_pagination_with_limit_and_offset(client):
+    # Create 15 tasks
+    for i in range(1, 16):
+        client.post("/tasks", json={"id": i, "title": f"Task {i}", "status": "todo"})
+    
+    # Get tasks 6-10 (offset=5, limit=5)
+    resp = client.get("/tasks?limit=5&offset=5")
+    assert resp.status_code == 200
+    tasks = resp.json()
+    assert len(tasks) == 5
+    assert tasks[0]["id"] == 6
+    assert tasks[4]["id"] == 10
+
+
+def test_list_tasks_pagination_offset_beyond_end(client):
+    # Create 5 tasks
+    for i in range(1, 6):
+        client.post("/tasks", json={"id": i, "title": f"Task {i}", "status": "todo"})
+    
+    # Request offset beyond available tasks
+    resp = client.get("/tasks?offset=10")
+    assert resp.status_code == 200
+    assert resp.json() == []
