@@ -38,5 +38,11 @@ class TaskStore:
         """Return the task with the given id, or None if absent."""
         return self._tasks.get(task_id)
 
+    def delete(self, task_id: int) -> None:
+        """Delete the task with the given id."""
+        if task_id not in self._tasks:
+            raise KeyError(f'Task with id {task_id} not found')
+        del self._tasks[task_id]
+
 
 store = TaskStore()

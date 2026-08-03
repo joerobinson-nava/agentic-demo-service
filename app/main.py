@@ -39,3 +39,12 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int) -> None:
+    """Delete a task by id."""
+    try:
+        store.delete(task_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="Task not found")
