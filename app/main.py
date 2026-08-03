@@ -9,7 +9,7 @@ Demo seams for the agentic platform:
 from fastapi import FastAPI, HTTPException
 
 from app.models import Task, TaskCreate
-from app.store import store
+from app.store import store, DuplicateTaskError
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
 
@@ -29,7 +29,10 @@ def list_tasks() -> list[Task]:
 @app.post("/tasks", response_model=Task, status_code=201)
 def create_task(data: TaskCreate) -> Task:
     """Create a task."""
-    return store.add(data)
+    try:
+        return store.add(data)
+    except DuplicateTaskError as e:
+        raise HTTPException(status_code=409, detail=f"Task with id {e.args[0]} already exists")
 
 
 @app.get("/tasks/{task_id}", response_model=Task)
