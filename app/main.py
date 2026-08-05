@@ -39,3 +39,11 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: int) -> dict[str, str]:
+    """Delete a task by id."""
+    if store.delete(task_id):
+        return {"message": "Task deleted"}
+    raise HTTPException(status_code=404, detail="Task not found")

@@ -39,4 +39,12 @@ class TaskStore:
         return self._tasks.get(task_id)
 
 
+    def delete(self, task_id: int) -> bool:
+        """Delete a task by id. Return True if deleted, False if not found."""
+        if task_id in self._tasks:
+            del self._tasks[task_id]
+            return True
+        return False
+
+
 store = TaskStore()

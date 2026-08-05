@@ -63,3 +63,17 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_delete_task(client):
+    client.post("/tasks", json={"id": 4, "title": "Delete me", "status": "done"})
+    resp = client.delete("/tasks/4")
+    assert resp.status_code == 204
+
+    resp = client.get("/tasks/4")
+    assert resp.status_code == 404
+
+
+def test_delete_missing_task_returns_404(client):
+    resp = client.delete("/tasks/999")
+    assert resp.status_code == 404
