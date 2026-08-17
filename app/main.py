@@ -17,7 +17,7 @@ app = FastAPI(title="Agentic Demo Service", version="0.1.0")
 @app.get("/health")
 def health() -> dict[str, str]:
     """Liveness probe."""
-    return {"status": "ok"}
+    return {"status": "healthy"}
 
 
 @app.get("/tasks", response_model=list[Task])
