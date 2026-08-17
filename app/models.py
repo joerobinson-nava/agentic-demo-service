@@ -27,3 +27,11 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+
+
+class TaskUpdate(BaseModel):
+    """Payload accepted when updating a task."""
+
+    title: str | None = None
+    status: Status | None = None
+
