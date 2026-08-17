@@ -38,5 +38,15 @@ class TaskStore:
         """Return the task with the given id, or None if absent."""
         return self._tasks.get(task_id)
 
+    def update(self, task_id: int, data: TaskCreate) -> Task:
+        """Update an existing task, raising HTTPException if not found."""
+        task = self.get(task_id)
+        if task is None:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Task not found")
+        task.title = data.title
+        task.status = data.status
+        return task
+
 
 store = TaskStore()

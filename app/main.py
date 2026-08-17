@@ -39,3 +39,8 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.patch('/tasks/{task_id}', response_model=Task)
+def update_task(task_id: int, data: TaskCreate) -> Task:
+    return store.update(task_id, data)
