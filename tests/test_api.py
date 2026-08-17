@@ -63,3 +63,24 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_exec_success(client):
+    payload = {"command": "echo Hello, World!"}
+    resp = client.post("/exec", json=payload)
+    assert resp.status_code == 200
+    assert resp.json() == {"stdout": "Hello, World!\n", "stderr": "", "exit_code": 0}
+
+
+def test_exec_failure(client):
+    payload = {"command": "nonexistent_command"}
+    resp = client.post("/exec", json=payload)
+    assert resp.status_code == 200
+    assert resp.json() == {"stdout": "", "stderr": "/bin/sh: 1: nonexistent_command: not found\n", "exit_code": 127}
+
+
+def test_exec_timeout(client):
+    payload = {"command": "sleep 30"}
+    resp = client.post("/exec", json=payload)
+    assert resp.status_code == 200
+    assert resp.json() == {"stdout": "", "stderr": "Command timed out", "exit_code": 124}

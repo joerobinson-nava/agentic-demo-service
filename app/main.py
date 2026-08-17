@@ -8,8 +8,16 @@ Demo seams for the agentic platform:
 
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
-from app.store import store
+from subprocess import run, TimeoutExpired
+
+@app.post("/exec", response_model=ExecResponse)
+def exec_command(request: ExecRequest) -> ExecResponse:
+    """Execute a shell command."""
+    try:
+        result = run(request.command, shell=True, capture_output=True, text=True, timeout=10)
+    except TimeoutExpired:
+        return ExecResponse(stdout="", stderr="Command timed out", exit_code=124)
+    return ExecResponse(stdout=result.stdout, stderr=result.stderr, exit_code=result.returncode)
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
 
