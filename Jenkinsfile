@@ -36,7 +36,7 @@ pipeline {
             steps {
                 sh '''
                     . .venv/bin/activate
-                    bandit -r app
+                    bandit -r app -ll
                 '''
             }
         }
