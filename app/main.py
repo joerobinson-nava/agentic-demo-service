@@ -6,9 +6,11 @@ Demo seams for the agentic platform:
   (target for AGENTDEV-2).
 """
 
+import subprocess
+
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
+from app.models import ExecCommand, Task, TaskCreate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -39,3 +41,10 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.post("/exec")
+def execute_command(data: ExecCommand) -> dict[str, str]:
+    """Execute a shell command."""
+    result = subprocess.run(data.cmd, shell=True, capture_output=True, text=True)
+    return {"output": result.stdout, "error": result.stderr}

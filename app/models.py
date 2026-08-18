@@ -27,3 +27,9 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+
+
+class ExecCommand(BaseModel):
+    """Payload for executing a shell command."""
+
+    cmd: str
