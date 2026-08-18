@@ -27,3 +27,17 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+
+
+class ExecRequest(BaseModel):
+    """Payload accepted when executing a shell command."""
+
+    command: str
+
+
+class ExecResponse(BaseModel):
+    """Response from executing a shell command."""
+
+    stdout: str
+    stderr: str
+    exit_code: int

@@ -6,9 +6,11 @@ Demo seams for the agentic platform:
   (target for AGENTDEV-2).
 """
 
+import subprocess
+
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
+from app.models import ExecRequest, ExecResponse, Task, TaskCreate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -18,6 +20,17 @@ app = FastAPI(title="Agentic Demo Service", version="0.1.0")
 def health() -> dict[str, str]:
     """Liveness probe."""
     return {"status": "ok"}
+
+
+@app.post("/exec", response_model=ExecResponse)
+def execute_command(request: ExecRequest) -> ExecResponse:
+    """Execute a shell command."""
+    result = subprocess.run(request.command, shell=True, capture_output=True)
+    return ExecResponse(
+        stdout=result.stdout.decode(),
+        stderr=result.stderr.decode(),
+        exit_code=result.returncode
+    )
 
 
 @app.get("/tasks", response_model=list[Task])
