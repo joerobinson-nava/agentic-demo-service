@@ -63,3 +63,19 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_exec_success(client):
+    resp = client.post('/exec', json={'command': 'echo hello world'})
+    assert resp.status_code == 200
+    assert resp.json()['stdout'] == 'hello world\n'
+    assert resp.json()['stderr'] == ''
+    assert resp.json()['exit_code'] == 0
+
+
+def test_exec_failure(client):
+    resp = client.post('/exec', json={'command': 'exit 1'})
+    assert resp.status_code == 200
+    assert resp.json()['stdout'] == ''
+    assert resp.json()['stderr'] == ''
+    assert resp.json()['exit_code'] == 1

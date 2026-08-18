@@ -13,6 +13,7 @@ has genuine context to retrieve and a green baseline to verify against.
 | `GET` | `/tasks` | List all tasks |
 | `POST` | `/tasks` | Create a task |
 | `GET` | `/tasks/{task_id}` | Get a task by id |
+| `POST` | `/exec` | Execute a shell command |
 
 ## Run locally
 
