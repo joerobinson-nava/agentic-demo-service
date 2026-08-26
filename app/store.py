@@ -5,7 +5,7 @@ The API layer does not yet handle it, so a duplicate id currently surfaces as an
 HTTP 500. Ticket AGENTDEV-2 is to return 409 instead.
 """
 
-from app.models import Task, TaskCreate
+from app.models import Status, Task, TaskCreate, TaskUpdate
 
 
 class DuplicateTaskError(Exception):
@@ -37,6 +37,28 @@ class TaskStore:
     def get(self, task_id: int) -> Task | None:
         """Return the task with the given id, or None if absent."""
         return self._tasks.get(task_id)
+
+    def update(self, task_id: int, data: TaskUpdate) -> Task | None:
+        """Update a task, returning the updated task or None if absent."""
+        existing = self.get(task_id)
+        if not existing:
+            return None
+        updated_data = existing.model_copy(update=data.model_dump(exclude_unset=True))
+        self._tasks[task_id] = updated_data
+        return updated_data
+
+    def delete(self, task_id: int) -> bool:
+        """Delete a task by id, returning True if deleted or False if absent."""
+        if task_id in self._tasks:
+            del self._tasks[task_id]
+            return True
+        return False
+
+    def count_by_status(self, status: Status | None = None) -> int:
+        """Count tasks, optionally filtering by status."""
+        if status is None:
+            return len(self._tasks)
+        return sum(1 for t in self._tasks.values() if t.status == status)
 
 
 store = TaskStore()

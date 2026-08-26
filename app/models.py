@@ -1,6 +1,7 @@
 """Domain models for the demo task service."""
 
 from enum import StrEnum
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -19,6 +20,13 @@ class TaskCreate(BaseModel):
     id: int
     title: str
     status: Status = Status.todo
+
+
+class TaskUpdate(BaseModel):
+    """Payload accepted when updating a task."""
+
+    title: Optional[str] = None
+    status: Optional[Status] = None
 
 
 class Task(BaseModel):
