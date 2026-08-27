@@ -27,3 +27,8 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+
+
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    status: Status | None = None
