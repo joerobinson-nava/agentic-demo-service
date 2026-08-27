@@ -5,7 +5,7 @@ The API layer does not yet handle it, so a duplicate id currently surfaces as an
 HTTP 500. Ticket AGENTDEV-2 is to return 409 instead.
 """
 
-from app.models import Task, TaskCreate, TaskUpdate, Status
+from app.models import Status, Task, TaskCreate, TaskUpdate
 
 
 class DuplicateTaskError(Exception):

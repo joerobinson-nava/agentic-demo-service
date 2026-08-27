@@ -8,7 +8,7 @@ Demo seams for the agentic platform:
 
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate, TaskUpdate, Status
+from app.models import Status, Task, TaskCreate, TaskUpdate
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
