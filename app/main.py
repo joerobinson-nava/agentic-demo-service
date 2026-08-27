@@ -8,7 +8,7 @@ Demo seams for the agentic platform:
 
 from fastapi import FastAPI, HTTPException
 
-from app.models import Task, TaskCreate
+from app.models import Task, TaskCreate, TaskUpdate, Status
 from app.store import store
 
 app = FastAPI(title="Agentic Demo Service", version="0.1.0")
@@ -21,9 +21,15 @@ def health() -> dict[str, str]:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    """Return all tasks."""
-    return store.list()
+def list_tasks(status: Status | None = None) -> list[Task]:
+    """Return all tasks, optionally filtered by status."""
+    return [t for t in store.list() if status is None or t.status == status]
+
+
+@app.get("/tasks/count")
+def count_tasks(status: Status | None = None):
+    """Count tasks, optionally filtered by status."""
+    return {"count": store.count_by_status(status)}
 
 
 @app.post("/tasks", response_model=Task, status_code=201)
@@ -39,3 +45,19 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.patch("/tasks/{task_id}", response_model=Task)
+def update_task(task_id: int, update: TaskUpdate):
+    """Update a task by id."""
+    updated = store.update(task_id, update)
+    if not updated:
+        raise HTTPException(404, "Task not found")
+    return updated
+
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+    """Delete a task by id."""
+    if not store.delete(task_id):
+        raise HTTPException(404, "Task not found")

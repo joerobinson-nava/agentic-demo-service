@@ -21,6 +21,10 @@ class TaskCreate(BaseModel):
     status: Status = Status.todo
 
 
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    status: Status | None = None
+
 class Task(BaseModel):
     """A task stored by the service."""
 

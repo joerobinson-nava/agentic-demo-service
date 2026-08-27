@@ -63,3 +63,64 @@ def test_get_task(client):
 def test_get_missing_task_returns_404(client):
     resp = client.get("/tasks/999")
     assert resp.status_code == 404
+
+
+def test_update_task(client):
+    client.post("/tasks", json={"id": 1, "title": "Test", "status": "todo"})
+    response = client.patch("/tasks/1", json={"title": "Updated"})
+    assert response.status_code == 200
+    assert response.json()["title"] == "Updated"
+    assert response.json()["status"] == "todo"
+
+
+def test_update_task_status(client):
+    client.post("/tasks", json={"id": 1, "title": "Test", "status": "todo"})
+    response = client.patch("/tasks/1", json={"status": "done"})
+    assert response.status_code == 200
+    assert response.json()["status"] == "done"
+    assert response.json()["title"] == "Test"
+
+
+def test_update_missing_task_returns_404(client):
+    response = client.patch("/tasks/999", json={"title": "Updated"})
+    assert response.status_code == 404
+
+
+def test_delete_task(client):
+    client.post("/tasks", json={"id": 2, "title": "DeleteMe"})
+    response = client.delete("/tasks/2")
+    assert response.status_code == 204
+    assert client.get("/tasks/2").status_code == 404
+
+
+def test_delete_missing_task_returns_404(client):
+    response = client.delete("/tasks/999")
+    assert response.status_code == 404
+
+
+def test_filter_by_status(client):
+    client.post("/tasks", json={"id": 3, "title": "A", "status": "in_progress"})
+    client.post("/tasks", json={"id": 4, "title": "B", "status": "todo"})
+    client.post("/tasks", json={"id": 5, "title": "C", "status": "in_progress"})
+    response = client.get("/tasks?status=in_progress")
+    assert response.status_code == 200
+    tasks = response.json()
+    assert len(tasks) == 2
+    assert all(t["status"] == "in_progress" for t in tasks)
+
+
+def test_task_count(client):
+    client.post("/tasks", json={"id": 1, "title": "A", "status": "done"})
+    client.post("/tasks", json={"id": 2, "title": "B", "status": "todo"})
+    client.post("/tasks", json={"id": 3, "title": "C", "status": "done"})
+    response = client.get("/tasks/count?status=done")
+    assert response.status_code == 200
+    assert response.json()["count"] == 2
+
+
+def test_task_count_all(client):
+    client.post("/tasks", json={"id": 1, "title": "A", "status": "done"})
+    client.post("/tasks", json={"id": 2, "title": "B", "status": "todo"})
+    response = client.get("/tasks/count")
+    assert response.status_code == 200
+    assert response.json()["count"] == 2
