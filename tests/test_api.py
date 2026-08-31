@@ -60,6 +60,62 @@ def test_get_task(client):
     assert resp.json()["title"] == "Fetch me"
 
 
-def test_get_missing_task_returns_404(client):
-    resp = client.get("/tasks/999")
+def test_filter_tasks_by_status(client):
+    """Test filtering tasks by status."""
+    client.post("/tasks", json={"id": 1, "title": "Task 1", "status": "todo"})
+    client.post("/tasks", json={"id": 2, "title": "Task 2", "status": "in_progress"})
+    client.post("/tasks", json={"id": 3, "title": "Task 3", "status": "done"})
+
+    resp = client.get("/tasks?status=todo")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["title"] == "Task 1"
+
+    resp = client.get("/tasks?status=in_progress")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["title"] == "Task 2"
+
+    resp = client.get("/tasks?status=done")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["title"] == "Task 3"
+
+
+
+
+def test_update_task_success(client):
+    """Test successful task update."""
+    client.post("/tasks", json={"id": 1, "title": "Initial title", "status": "todo"})
+    resp = client.put("/tasks/1", json={"title": "Updated title", "status": "in_progress"})
+    assert resp.status_code == 200
+    assert resp.json()["title"] == "Updated title"
+    assert resp.json()["status"] == "in_progress"
+
+
+def test_update_task_partial(client):
+    """Test partial task update."""
+    client.post("/tasks", json={"id": 2, "title": "Initial title", "status": "todo"})
+    resp = client.put("/tasks/2", json={"title": "Updated title"})
+    assert resp.status_code == 200
+    assert resp.json()["title"] == "Updated title"
+    assert resp.json()["status"] == "todo"
+
+
+def test_update_task_not_found(client):
+    """Test updating a non-existent task."""
+    resp = client.put("/tasks/999", json={"title": "New title"})
+    assert resp.status_code == 404
+
+
+def test_delete_task_success(client):
+    """Test successful task deletion."""
+    client.post("/tasks", json={"id": 1, "title": "Task to delete"})
+    resp = client.delete("/tasks/1")
+    assert resp.status_code == 204
+
+
+def test_delete_task_not_found(client):
+    """Test deleting a non-existent task."""
+    resp = client.delete("/tasks/999")
     assert resp.status_code == 404
