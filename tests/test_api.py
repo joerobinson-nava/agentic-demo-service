@@ -60,6 +60,43 @@ def test_get_task(client):
     assert resp.json()["title"] == "Fetch me"
 
 
-def test_get_missing_task_returns_404(client):
-    resp = client.get("/tasks/999")
+def test_filter_tasks_by_status(client):
+    client.post("/tasks", json={"id": 1, "title": "Task 1", "status": "todo"})
+    client.post("/tasks", json={"id": 2, "title": "Task 2", "status": "done"})
+    resp = client.get("/tasks?status=todo")
+    assert resp.status_code == 200
+    assert len(resp.json()) == 1
+    assert resp.json()[0]["id"] == 1
+
+
+def test_update_task(client):
+    client.post("/tasks", json={"id": 3, "title": "Task 3", "status": "todo"})
+    resp = client.put("/tasks/3", json={"title": "Updated Task 3"})
+    assert resp.status_code == 200
+    assert resp.json()["title"] == "Updated Task 3"
+
+
+def test_update_task_partial(client):
+    client.post("/tasks", json={"id": 4, "title": "Task 4", "status": "todo"})
+    resp = client.put("/tasks/4", json={"status": "in_progress"})
+    assert resp.status_code == 200
+    assert resp.json()["title"] == "Task 4"
+    assert resp.json()["status"] == "in_progress"
+
+
+def test_update_task_not_found(client):
+    resp = client.put("/tasks/999", json={"title": "Nonexistent"})
+    assert resp.status_code == 404
+
+
+def test_delete_task(client):
+    client.post("/tasks", json={"id": 5, "title": "Task 5"})
+    resp = client.delete("/tasks/5")
+    assert resp.status_code == 204
+    resp = client.get("/tasks")
+    assert len(resp.json()) == 0
+
+
+def test_delete_task_not_found(client):
+    resp = client.delete("/tasks/999")
     assert resp.status_code == 404

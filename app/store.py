@@ -38,5 +38,25 @@ class TaskStore:
         """Return the task with the given id, or None if absent."""
         return self._tasks.get(task_id)
 
+    def update(
+        self, task_id: int, title: str | None = None, status: str | None = None
+    ) -> Task | None:
+        """Update an existing task. Returns None if task not found."""
+        task = self._tasks.get(task_id)
+        if task is None:
+            return None
+        if title is not None:
+            task.title = title
+        if status is not None:
+            task.status = status
+        return task
+
+    def delete(self, task_id: int) -> bool:
+        """Delete a task by id. Returns True if deleted, False if not found."""
+        if task_id in self._tasks:
+            del self._tasks[task_id]
+            return True
+        return False
+
 
 store = TaskStore()
