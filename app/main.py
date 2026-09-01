@@ -21,9 +21,9 @@ def health() -> dict[str, str]:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    """Return all tasks."""
-    return store.list()
+def list_tasks(status: str | None = None) -> list[Task]:
+    """Return all tasks, optionally filtered by status."""
+    return store.list(status=status)
 
 
 @app.post("/tasks", response_model=Task, status_code=201)
@@ -39,3 +39,20 @@ def get_task(task_id: int) -> Task:
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+
+@app.put("/tasks/{task_id}", response_model=Task)
+def update_task(task_id: int, data: TaskCreate) -> Task:
+    """Update an existing task by id."""
+    task = store.update(task_id, data)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int) -> None:
+    """Delete a task by id."""
+    if not store.delete(task_id):
+        raise HTTPException(status_code=404, detail="Task not found")
+
