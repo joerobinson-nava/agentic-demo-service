@@ -14,6 +14,8 @@ has genuine context to retrieve and a green baseline to verify against.
 | `POST` | `/tasks` | Create a task |
 | `GET` | `/tasks/{task_id}` | Get a task by id |
 
+The service health endpoint at `/health` returns HTTP 200 when the service is up.
+
 ## Run locally
 
 ```bash
