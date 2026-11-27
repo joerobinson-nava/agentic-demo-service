@@ -13,6 +13,13 @@ has genuine context to retrieve and a green baseline to verify against.
 | `GET` | `/tasks` | List all tasks |
 | `POST` | `/tasks` | Create a task |
 | `GET` | `/tasks/{task_id}` | Get a task by id |
+| `GET` | `/tasks/ready` | List `todo` tasks whose direct dependencies are all `done`, by id |
+| `POST` | `/tasks/{task_id}/dependencies` | Add a dependency (body `{"depends_on": id}`); 200, 404, or 409 on a cycle |
+| `DELETE` | `/tasks/{task_id}/dependencies/{dependency_id}` | Remove a dependency; 204, or 404 |
+| `GET` | `/tasks/{task_id}/blockers` | List direct dependencies that are not `done`, by id; 404 if the task is missing |
+
+Tasks carry a `depends_on` list of task ids (sorted, no duplicates). `POST /tasks`
+accepts it and returns 422 for unknown ids or a self-reference.
 
 ## Run locally
 

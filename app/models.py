@@ -2,7 +2,7 @@
 
 from enum import StrEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 
 class Status(StrEnum):
@@ -19,6 +19,7 @@ class TaskCreate(BaseModel):
     id: int
     title: str
     status: Status = Status.todo
+    depends_on: list[int] = Field(default_factory=list)
 
 
 class Task(BaseModel):
@@ -27,3 +28,15 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+    depends_on: list[int] = Field(default_factory=list)
+
+    @field_validator("depends_on")
+    @classmethod
+    def _sorted_unique(cls, value: list[int]) -> list[int]:
+        return sorted(set(value))
+
+
+class DependencyAdd(BaseModel):
+    """Payload accepted when adding a dependency to a task."""
+
+    depends_on: int
