@@ -1,5 +1,6 @@
 """Domain models for the demo task service."""
 
+from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel
@@ -27,3 +28,4 @@ class Task(BaseModel):
     id: int
     title: str
     status: Status
+    created_at: datetime
