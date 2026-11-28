@@ -5,6 +5,8 @@ The API layer does not yet handle it, so a duplicate id currently surfaces as an
 HTTP 500. Ticket AGENTDEV-2 is to return 409 instead.
 """
 
+from datetime import UTC, datetime
+
 from app.models import Task, TaskCreate
 
 
@@ -22,15 +24,23 @@ class TaskStore:
         """Remove all tasks. Used to isolate tests."""
         self._tasks.clear()
 
-    def list(self) -> list[Task]:
-        """Return all tasks in insertion order."""
-        return list(self._tasks.values())
+    def list(self, created_after: datetime | None = None) -> list[Task]:
+        """Return tasks in insertion order, optionally only those created strictly after a time."""
+        tasks = list(self._tasks.values())
+        if created_after is None:
+            return tasks
+        return [t for t in tasks if t.created_at > created_after]
 
     def add(self, data: TaskCreate) -> Task:
         """Add a new task, raising DuplicateTaskError on a repeated id."""
         if data.id in self._tasks:
             raise DuplicateTaskError(data.id)
-        task = Task(id=data.id, title=data.title, status=data.status)
+        task = Task(
+            id=data.id,
+            title=data.title,
+            status=data.status,
+            created_at=datetime.now(UTC),
+        )
         self._tasks[data.id] = task
         return task
 

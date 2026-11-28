@@ -6,7 +6,9 @@ Demo seams for the agentic platform:
   (target for AGENTDEV-2).
 """
 
-from fastapi import FastAPI, HTTPException
+from datetime import UTC, datetime
+
+from fastapi import FastAPI, HTTPException, Query
 
 from app.models import Task, TaskCreate
 from app.store import store
@@ -21,9 +23,19 @@ def health() -> dict[str, str]:
 
 
 @app.get("/tasks", response_model=list[Task])
-def list_tasks() -> list[Task]:
-    """Return all tasks."""
-    return store.list()
+def list_tasks(
+    created_after: datetime | None = Query(
+        default=None,
+        description=(
+            "ISO 8601 time; return only tasks created strictly after it. "
+            "A time without an offset is treated as UTC."
+        ),
+    ),
+) -> list[Task]:
+    """Return all tasks, optionally only those created after a given time."""
+    if created_after is not None and created_after.tzinfo is None:
+        created_after = created_after.replace(tzinfo=UTC)
+    return store.list(created_after=created_after)
 
 
 @app.post("/tasks", response_model=Task, status_code=201)
